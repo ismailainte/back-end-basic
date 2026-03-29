@@ -13,15 +13,36 @@ let userId = 1;
 let postId = 1;
 let commentId = 1;
 
+const sendSuccess = (res, statusCode, message, data = {}) => {
+    return res.status(statusCode).json({
+        status: 'success',
+        statusCode,
+        message,
+        ...data
+    });
+};
+
+const sendError = (res, statusCode, message) => {
+    return res.status(statusCode).json({
+        status: 'error',
+        statusCode,
+        message
+    });
+};
+
 app.get('/', (req, res) => {
-    res.send('Simple API is running');
+    res.json({
+        status: 'success',
+        statusCode: 200,
+        message: 'Basic back-end assignment API is running'
+    });
 });
 
 app.post('/users', (req, res) => {
     const { name, email } = req.body;
 
     if (!name || !email) {
-        return res.status(400).json({ message: 'name and email are required' });
+        return sendError(res, 400, 'name and email are required');
     }
 
     const newUser = {
@@ -31,7 +52,7 @@ app.post('/users', (req, res) => {
     };
 
     users.push(newUser);
-    res.status(201).json({ message: 'User added successfully', user: newUser });
+    return sendSuccess(res, 201, 'User added successfully', { user: newUser });
 });
 
 app.put('/users/:id', (req, res) => {
@@ -39,7 +60,7 @@ app.put('/users/:id', (req, res) => {
     const user = users.find((item) => item.id === id);
 
     if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return sendError(res, 404, 'User not found');
     }
 
     const { name, email } = req.body;
@@ -52,7 +73,7 @@ app.put('/users/:id', (req, res) => {
         user.email = email;
     }
 
-    res.json({ message: 'User updated successfully', user });
+    return sendSuccess(res, 200, 'User updated successfully', { user });
 });
 
 app.delete('/users/:id', (req, res) => {
@@ -60,18 +81,18 @@ app.delete('/users/:id', (req, res) => {
     const index = users.findIndex((item) => item.id === id);
 
     if (index === -1) {
-        return res.status(404).json({ message: 'User not found' });
+        return sendError(res, 404, 'User not found');
     }
 
     const deletedUser = users.splice(index, 1)[0];
-    res.json({ message: 'User deleted successfully', user: deletedUser });
+    return sendSuccess(res, 200, 'User deleted successfully', { user: deletedUser });
 });
 
 app.post('/posts', (req, res) => {
     const { title, content } = req.body;
 
     if (!title || !content) {
-        return res.status(400).json({ message: 'title and content are required' });
+        return sendError(res, 400, 'title and content are required');
     }
 
     const newPost = {
@@ -81,7 +102,7 @@ app.post('/posts', (req, res) => {
     };
 
     posts.push(newPost);
-    res.status(201).json({ message: 'Post added successfully', post: newPost });
+    return sendSuccess(res, 201, 'Post added successfully', { post: newPost });
 });
 
 app.put('/posts/:id', (req, res) => {
@@ -89,7 +110,7 @@ app.put('/posts/:id', (req, res) => {
     const post = posts.find((item) => item.id === id);
 
     if (!post) {
-        return res.status(404).json({ message: 'Post not found' });
+        return sendError(res, 404, 'Post not found');
     }
 
     const { title, content } = req.body;
@@ -102,7 +123,7 @@ app.put('/posts/:id', (req, res) => {
         post.content = content;
     }
 
-    res.json({ message: 'Post updated successfully', post });
+    return sendSuccess(res, 200, 'Post updated successfully', { post });
 });
 
 app.delete('/posts/:id', (req, res) => {
@@ -110,18 +131,18 @@ app.delete('/posts/:id', (req, res) => {
     const index = posts.findIndex((item) => item.id === id);
 
     if (index === -1) {
-        return res.status(404).json({ message: 'Post not found' });
+        return sendError(res, 404, 'Post not found');
     }
 
     const deletedPost = posts.splice(index, 1)[0];
-    res.json({ message: 'Post deleted successfully', post: deletedPost });
+    return sendSuccess(res, 200, 'Post deleted successfully', { post: deletedPost });
 });
 
 app.post('/comments', (req, res) => {
     const { postId, text } = req.body;
 
     if (!postId || !text) {
-        return res.status(400).json({ message: 'postId and text are required' });
+        return sendError(res, 400, 'postId and text are required');
     }
 
     const newComment = {
@@ -131,7 +152,7 @@ app.post('/comments', (req, res) => {
     };
 
     comments.push(newComment);
-    res.status(201).json({ message: 'Comment added successfully', comment: newComment });
+    return sendSuccess(res, 201, 'Comment added successfully', { comment: newComment });
 });
 
 app.put('/comments/:id', (req, res) => {
@@ -139,7 +160,7 @@ app.put('/comments/:id', (req, res) => {
     const comment = comments.find((item) => item.id === id);
 
     if (!comment) {
-        return res.status(404).json({ message: 'Comment not found' });
+        return sendError(res, 404, 'Comment not found');
     }
 
     const { postId, text } = req.body;
@@ -152,7 +173,7 @@ app.put('/comments/:id', (req, res) => {
         comment.text = text;
     }
 
-    res.json({ message: 'Comment updated successfully', comment });
+    return sendSuccess(res, 200, 'Comment updated successfully', { comment });
 });
 
 app.delete('/comments/:id', (req, res) => {
@@ -160,11 +181,11 @@ app.delete('/comments/:id', (req, res) => {
     const index = comments.findIndex((item) => item.id === id);
 
     if (index === -1) {
-        return res.status(404).json({ message: 'Comment not found' });
+        return sendError(res, 404, 'Comment not found');
     }
 
     const deletedComment = comments.splice(index, 1)[0];
-    res.json({ message: 'Comment deleted successfully', comment: deletedComment });
+    return sendSuccess(res, 200, 'Comment deleted successfully', { comment: deletedComment });
 });
 
 app.listen(PORT, () => {
